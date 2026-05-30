@@ -1,0 +1,6 @@
+{
+  "name": "TAJMUHRA Ecommerce",
+  "description": "Premium Arabic RTL e-commerce store for TAJMUHRA (تاج مُهرة), a luxury modest women's fashion brand specializing in elegant abayas, jalabiyas, and comfortable women's wear.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
