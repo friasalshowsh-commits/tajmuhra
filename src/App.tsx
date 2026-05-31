@@ -13,6 +13,14 @@ import SizeGuide from "./components/SizeGuide";
 import CartDrawer from "./components/CartDrawer";
 import Footer from "./components/Footer";
 import WhatsAppButton, { openWhatsApp } from "./components/WhatsAppButton";
+import AdminDashboard from "./components/AdminDashboard";
+import BrandStory from "./components/BrandStory";
+import InstagramGallery from "./components/InstagramGallery";
+import JournalPage from "./components/JournalPage";
+import AboutPage from "./components/AboutPage";
+import ShippingPage from "./components/ShippingPage";
+import ContactPage from "./components/ContactPage";
+import Testimonials from "./components/Testimonials";
 import { PRODUCTS, CATEGORIES, TRUST_BADGES } from "./data";
 import { Product, CartItem } from "./types";
 import { motion, AnimatePresence } from "motion/react";
@@ -96,6 +104,14 @@ export default function App() {
     }
   }, [toast]);
 
+  // Sync initial view check for admin panel parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view") === "admin" || params.get("admin") === "true") {
+      setActiveSection("admin");
+    }
+  }, []);
+
   const handleUpdateCartQuantity = (id: string, newQty: number) => {
     if (newQty <= 0) {
       handleRemoveCartItem(id);
@@ -136,6 +152,10 @@ export default function App() {
   };
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  if (activeSection === "admin") {
+    return <AdminDashboard onBackToStore={() => handleNavigate("home")} />;
+  }
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-black flex flex-col font-sans relative antialiased" style={{ direction: "rtl" }}>
@@ -198,6 +218,7 @@ export default function App() {
             onClose={() => setSelectedProduct(null)}
             onAddToCart={handleAddToCart}
             onOpenSizeGuide={() => setIsSizeGuideOpen(true)}
+            onViewProduct={handleViewProductDetails}
           />
         ) : (
           /* Default Landing structure */
@@ -212,21 +233,27 @@ export default function App() {
 
             {/* Featured categories list on Homepage view */}
             {activeSection === "home" && (
-              <section className="py-16 bg-white border-b border-brand-border select-none font-sans">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+              <section className="py-24 bg-white border-b border-[#E7E2DA] select-none font-sans">
+                <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-16">
                   
                   {/* Category Header */}
-                  <div className="text-center max-w-md mx-auto space-y-3">
-                    <h2 className="text-2xl md:text-3xl font-light text-brand-navy tracking-tight leading-snug">
-                      تصفّحي تصانيفنا الراقية
+                  <div className="text-center max-w-xl mx-auto space-y-4">
+                    <span 
+                      className="text-[#C5A46D] text-[10px] uppercase tracking-[0.3em] font-serif font-light block"
+                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                    >
+                      THE COUTURE PRESETS
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-light text-[#111111] tracking-tight leading-snug">
+                      Luxury Categories • تصنيفات الأناقة
                     </h2>
-                    <p className="text-xs sm:text-sm text-brand-taupe leading-relaxed font-light">
-                      تألقي بمجموعات فريدة متناسقة الأطوال، تناسب ذوقك وتلبي حاجات حضورك الراقي.
+                    <p className="text-xs sm:text-sm text-[#6E6256] leading-relaxed font-light">
+                      تصفّحي مجموعاتنا الحصرية المنتقاة بعناية لتعكس الهوية الساحرة لدار تاج مُهرة بلمسات متطورة.
                     </p>
                   </div>
 
-                  {/* Categories card grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Categories card grid (Editorial tall cards) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {CATEGORIES.map((cat) => (
                       <CategoryCard
                         key={cat.id}
@@ -240,8 +267,14 @@ export default function App() {
               </section>
             )}
 
-            {/* Catalog list section (Active under all catalog tabs except about section) */}
-            {activeSection !== "about" && (
+            {/* Standalone Modular Page Switcher */}
+            {activeSection === "journal" && <JournalPage />}
+            {activeSection === "about" && <AboutPage />}
+            {activeSection === "shipping" && <ShippingPage />}
+            {activeSection === "contact" && <ContactPage />}
+
+            {/* Catalog list section (Active under all catalog tabs except custom non-catalog info sections) */}
+            {!["about", "journal", "shipping", "contact"].includes(activeSection) && (
               <ProductGrid
                 activeSection={activeSection}
                 searchQuery={searchQuery}
@@ -252,34 +285,19 @@ export default function App() {
               />
             )}
 
-            {/* Reusable Luxury About Block Segment (renders if "about" is selected OR beautifully present at the bottom of the home layout) */}
+            {/* Reusable Luxury About Block Segment (renders if beautifully present at the bottom of the home layout) */}
+            {activeSection === "home" && (
+              <BrandStory />
+            )}
+
+            {/* Testimonials Review Slider on Homepage */}
             {(activeSection === "home" || activeSection === "about") && (
-              <section className="py-20 bg-white border-b border-brand-border text-center select-none font-sans">
-                <div className="max-w-4xl mx-auto px-6 sm:px-10 space-y-8">
-                  <div className="flex justify-center">
-                    <div className="bg-[#F8F6F1] w-14 h-14 flex items-center justify-center border border-brand-border text-brand-gold">
-                      <Heart className="fill-current stroke-[1.5]" size={22} />
-                    </div>
-                  </div>
+              <Testimonials />
+            )}
 
-                  <div className="space-y-4 max-w-2xl mx-auto">
-                    <h2 className="text-2xl md:text-3xl font-light text-brand-black leading-snug tracking-tight">
-                      عن دور تاج مُهرة | TAJMUHRA
-                    </h2>
-                    <p className="text-[#9A8F86] text-sm md:text-base leading-relaxed font-light font-sans">
-                      تاج مُهرة متجر يهتم بتقديم تصاميم محتشمة راقية تجمع بين الراحة، البساطة، والتفاصيل الأنثوية الهادئة. نختار القطع بعناية لتناسب الإطلالة اليومية والمناسبات الخفيفة، بأسعار مناسبة وخدمة مباشرة عبر واتساب.
-                    </p>
-                  </div>
-
-                  {/* Dynamic Signature Graphic */}
-                  <div className="font-serif italic text-base md:text-lg text-brand-gold tracking-widest leading-6 pt-3" style={{ fontFamily: "Georgia, serif" }}>
-                    <span className="block pr-[0.1em] font-bold">TAJMUHRA BOUTIQUE</span>
-                    <span className="font-sans text-[10px] tracking-[0.3em] text-[#9A8F86] mt-1.5 block uppercase">
-                      ـ لطلة أنثوية لا تُنسى ـ
-                    </span>
-                  </div>
-                </div>
-              </section>
+            {/* Curated Instagram Lifestyle Social Wall (Renders on homepage view below brand story) */}
+            {activeSection === "home" && (
+              <InstagramGallery />
             )}
 
             {/* Core Trust Badges (Active under all product segments to seal security) */}

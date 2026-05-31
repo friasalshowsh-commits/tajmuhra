@@ -25,7 +25,7 @@ export const PRODUCTS: Product[] = [
     price: 170,
     unit: "ر.س",
     imageUrl: imgProduct1,
-    category: "عباءات سوداء",
+    category: "Signature Collection",
     colors: [
       { name: "أسود فاخر", hex: "#111111" }
     ],
@@ -56,7 +56,7 @@ export const PRODUCTS: Product[] = [
     price: 150,
     unit: "ر.س",
     imageUrl: imgProduct2,
-    category: "جلابيات يومية",
+    category: "Everyday Elegance",
     colors: [
       { name: "كحلي داكن", hex: "#0B1F3A" },
       { name: "أزرق نيلي", hex: "#1E293B" }
@@ -88,7 +88,7 @@ export const PRODUCTS: Product[] = [
     price: 170,
     unit: "ر.س",
     imageUrl: imgProduct3,
-    category: "قطع للمناسبات",
+    category: "Evening Collection",
     colors: [
       { name: "أبيض ملكي", hex: "#F3F4F6" },
       { name: "كريمي ناعم", hex: "#FAF7F2" }
@@ -119,7 +119,7 @@ export const PRODUCTS: Product[] = [
     price: 100,
     unit: "ر.س",
     imageUrl: imgProduct4,
-    category: "عباءات ملونة",
+    category: "New Arrivals",
     colors: [
       { name: "كحلي لامع", hex: "#112244" },
       { name: "أسود فاحم", hex: "#1A1A1A" }
@@ -150,7 +150,7 @@ export const PRODUCTS: Product[] = [
     price: 100,
     unit: "ر.س",
     imageUrl: imgProduct5,
-    category: "عباءات ملونة",
+    category: "Everyday Elegance",
     colors: [
       { name: "رمادي هادئ", hex: "#8E8D8A" },
       { name: "بيج توب", hex: "#A89F91" }
@@ -180,7 +180,7 @@ export const PRODUCTS: Product[] = [
     price: 250,
     unit: "ر.س",
     imageUrl: imgProduct6,
-    category: "قطع للمناسبات",
+    category: "Evening Collection",
     colors: [
       { name: "أسود بتطريز وردي ذهبي", hex: "#1A1A1A" }
     ],
@@ -204,32 +204,32 @@ export const PRODUCTS: Product[] = [
 
 export const CATEGORIES = [
   {
-    id: "cat_black",
-    name: "عباءات سوداء",
-    nameEn: "Classic Black Abayas",
-    description: "الأناقة والوقار في لون الليل الفاخر",
+    id: "cat_signature",
+    name: "Signature Collection",
+    nameEn: "Signature Collection",
+    description: "قطع غنية بالتفاصيل الحصرية وتجسد جوهر الفخامة لدار تاج مُهرة",
     imageUrl: imgProduct1
   },
   {
-    id: "cat_colored",
-    name: "عباءات ملونة",
-    nameEn: "Chic Colored Abayas",
-    description: "ألوان ترابية وهادئة تضفي نعومة لحضورك",
-    imageUrl: imgProduct5
+    id: "cat_evening",
+    name: "Evening Collection",
+    nameEn: "Evening Collection",
+    description: "أثواب مطرزة بخيوط برّاقة وقصّات راقية صممت لمناسباتك الفريدة",
+    imageUrl: imgProduct6
   },
   {
-    id: "cat_jalabiya",
-    name: "جلابيات يومية",
-    nameEn: "Lifestyle Jalabiyas",
-    description: "تصاميم واسعة وخامات باردة مريحة للبيت والجمعات",
+    id: "cat_everyday",
+    name: "Everyday Elegance",
+    nameEn: "Everyday Elegance",
+    description: "تصاميم انسيابية مريحة بخامات يابانية وكورية باردة لخطواتكِ اليومية",
     imageUrl: imgProduct2
   },
   {
-    id: "cat_occasions",
-    name: "قطع للمناسبات",
-    nameEn: "Occasion Showcase",
-    description: "قطع فخمة وتطريز فاخر للأفراح والأعياد والمناسبات الصاخبة",
-    imageUrl: imgProduct6
+    id: "cat_new_arrivals",
+    name: "New Arrivals",
+    nameEn: "New Arrivals",
+    description: "أحدث منسوجات ومبتكرات الدار المصممة ببراعة وأناقة استثنائية",
+    imageUrl: imgProduct5
   }
 ];
 

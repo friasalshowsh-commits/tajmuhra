@@ -6,131 +6,108 @@
 import React from "react";
 import { HERO_IMAGE } from "../data";
 import { motion } from "motion/react";
-import { ArrowLeft, Sparkles } from "lucide-react";
 
 interface HeroProps {
   onShopNowClick: () => void;
-  onSeeWhatNewClick: () => void;
+  onSeeWhatNewClick?: () => void;
 }
 
-export default function Hero({ onShopNowClick, onSeeWhatNewClick }: HeroProps) {
+export default function Hero({ onShopNowClick }: HeroProps) {
   return (
-    <section className="relative overflow-hidden bg-brand-bg py-12 md:py-20 border-b border-brand-border select-none">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Right Column: Copywriting and CTA (RTL: Arrives on right on desktop) */}
-          <motion.div
-            id="hero-copy-column"
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="lg:col-span-5 space-y-6 text-right order-2 lg:order-1"
+    <section className="relative h-[92vh] w-full bg-[#111111] overflow-hidden select-none flex items-center justify-center">
+      {/* Background Full-Screen Image with Soft Lighting Overlay */}
+      <div className="absolute inset-0 w-full h-full">
+        <img
+          src={HERO_IMAGE}
+          alt="TAJMUHRA Campaign Model"
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover object-center grayscale-[14%] brightness-95 scale-102"
+        />
+        {/* Soft, warm vignette overlay for premium atmospheric lighting */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/75 via-[#111111]/35 to-[#111111]/45" />
+        <div className="absolute inset-0 bg-radial-vignette opacity-30" />
+      </div>
+
+      {/* Inner thin double frame representing highest level couture alignment */}
+      <div className="absolute inset-6 md:inset-10 border border-[#FAF8F4]/10 pointer-events-none z-10" />
+
+      {/* Hero Typography & Content Overlay (Centered RTL alignment) */}
+      <div className="relative z-20 text-center max-w-3xl px-6 space-y-6 md:space-y-8 flex flex-col items-center">
+        
+        {/* Subtitle / Brand Crest Label */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="flex items-center gap-3 justify-center"
+        >
+          <span className="w-8 h-[1px] bg-[#C5A46D]/60" />
+          <span
+            className="text-[#C5A46D] md:text-xs text-[10px] tracking-[0.4em] uppercase font-light"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
           >
-            <div className="overflow-hidden mb-2">
-              <span className="text-brand-gold text-[12px] uppercase tracking-[0.2em] font-medium block">
-                مـوسـم جـديـد ٢٠٢٦ ✦ تـاج مـهـرة
-              </span>
-            </div>
+            HAUTE COUTURE ARABIA
+          </span>
+          <span className="w-8 h-[1px] bg-[#C5A46D]/60" />
+        </motion.div>
 
-            <div className="space-y-4">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light leading-[1.1] text-brand-black font-sans">
-                أناقة محتشمة
-                <span className="block mt-2 italic font-serif text-brand-gold" style={{ fontFamily: "Georgia, serif" }}>
-                  بتفاصيل هادئة
-                </span>
-              </h1>
-              
-              <p className="text-[#9A8F86] text-[15px] font-sans leading-relaxed max-w-md">
-                تصاميم راقية للعباءات والجلابيات اليومية، بخامات مريحة وقصّات تناسب حضورك، مستوحاة من بساطة الطبيعة وفخامة التفاصيل الهادئة.
-              </p>
-            </div>
-
-            {/* CTA Actions (Flat Minimal design) */}
-            <div className="flex flex-wrap gap-4 pt-4 items-center">
-              <button
-                id="hero-shop-now-btn"
-                onClick={onShopNowClick}
-                className="bg-brand-black text-white px-10 py-4 text-[13px] font-sans font-medium tracking-widest hover:bg-brand-navy transition-all cursor-pointer uppercase"
-              >
-                تسوقي الآن
-              </button>
-
-              <button
-                id="hero-see-new-btn"
-                onClick={onSeeWhatNewClick}
-                className="border border-brand-black text-brand-black px-10 py-4 text-[13px] font-sans font-medium tracking-widest hover:bg-[#F0EEE8] transition-all cursor-pointer uppercase"
-              >
-                شاهدي الجديد
-              </button>
-            </div>
-
-            {/* Custom Boutique Badges info */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-brand-border">
-              <div className="text-right">
-                <span className="block font-serif text-xl font-bold tracking-tight text-brand-gold">
-                  100%
-                </span>
-                <span className="text-[11px] text-[#9A8F86] font-light">
-                  أقمشة كورية ناعمة
-                </span>
-              </div>
-              <div className="text-right border-r border-[#E7E2DA] pr-4">
-                <span className="block font-serif text-xl font-bold tracking-tight text-brand-black">
-                  7+
-                </span>
-                <span className="text-[11px] text-[#9A8F86] font-light">
-                  مقاسات مخصصة
-                </span>
-              </div>
-              <div className="text-right border-r border-[#E7E2DA] pr-4">
-                <span className="block font-sans text-xs md:text-sm font-bold tracking-widest text-[#25D366] py-1.5">
-                  رَسـمـيّ
-                </span>
-                <span className="text-[11px] text-[#9A8F86] font-light block">
-                  دعم وتنسيق واتساب
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Left Column: Model / Product Image Area */}
-          <motion.div
-            id="hero-image-column"
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="lg:col-span-7 flex justify-center lg:justify-end order-1 lg:order-2"
+        {/* Brand Display Header */}
+        <div className="space-y-2 md:space-y-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.4 }}
+            className="text-white text-5xl sm:text-7xl lg:text-8.5xl font-light tracking-[0.08em] font-sans"
+            style={{ letterSpacing: "0.0625em" }}
           >
-            <div className="relative w-full max-w-2xl aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] bg-[#F8F6F1] p-1 border border-brand-border group overflow-hidden">
-              {/* Inner Decorative Accent Border */}
-              <div className="absolute inset-2 border border-brand-gold/10 pointer-events-none z-10" />
-              
-              <img
-                src={HERO_IMAGE}
-                alt="العارض البصري لـ تاج مُهرة"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 group-hover:scale-101 transition-all duration-700"
-              />
+            TAJMUHRA
+          </motion.h1>
 
-              {/* Float Card Overlay for brand look (Flat and elegant) */}
-              <div className="absolute bottom-6 right-6 z-20 bg-white/95 backdrop-blur-md px-5 py-4 border border-brand-border max-w-[220px] text-right shadow-sm hidden sm:block">
-                <div className="flex items-center gap-1.5 text-[9px] text-[#C8A96B] font-bold tracking-widest block mb-1">
-                  <span>الأكثر مبيعاً</span>
-                </div>
-                <p className="font-semibold text-xs text-brand-black font-sans tracking-tight leading-snug">
-                  طقم عباءة الدانتيل الأسود الملكي
-                </p>
-                <span className="block font-serif font-bold text-sm text-brand-gold mt-1">
-                  ١٧٠ ر.س
-                </span>
-              </div>
-            </div>
-          </motion.div>
-
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.4, delay: 0.6 }}
+            className="text-[#C5A46D] text-lg sm:text-2xl mt-1 tracking-[0.25em] font-light italic font-serif"
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
+            Timeless Elegance
+          </motion.p>
         </div>
+
+        {/* Short Poetic Editorial Copy */}
+        <motion.p
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, delay: 0.8 }}
+          className="text-[#FAF8F4]/90 text-sm sm:text-base font-light max-w-xl leading-relaxed tracking-wide font-sans px-4"
+        >
+          قطع صُممت لترافق حضورك لا لتنافسه
+        </motion.p>
+
+        {/* CTA Button (Ultra-premium clean rectangular border button) */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+          className="pt-4"
+        >
+          <button
+            id="hero-shop-exclusive-btn"
+            onClick={onShopNowClick}
+            className="relative px-12 py-4 text-xs font-light tracking-[0.2em] font-sans text-[#FAF8F4] bg-transparent border border-[#FAF8F4]/40 hover:border-[#C5A46D] hover:bg-[#FAF8F4] hover:text-[#111111] transition-all duration-500 cursor-pointer uppercase rounded-none group shadow-sm overflow-hidden"
+          >
+            <span className="relative z-10">استكشفي المجموعة</span>
+          </button>
+        </motion.div>
+
+      </div>
+
+      {/* Decorative vertical coordinates / details at the margins of fullscreen view */}
+      <div className="absolute bottom-8 left-10 hidden md:block z-20 text-neutral-400 text-[10px] uppercase tracking-[0.25em] font-light">
+        © 2026 TAJMUHRA BOUTIQUE
+      </div>
+      <div className="absolute bottom-8 right-10 hidden md:block z-20 text-neutral-400 text-[10px] uppercase tracking-[0.25em] font-light">
+        RIYADH / SAUDI ARABIA
       </div>
     </section>
   );

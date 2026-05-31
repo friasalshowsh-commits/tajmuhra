@@ -3,23 +3,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Product } from "../types";
+import { PRODUCTS } from "../data";
 import { openWhatsApp } from "./WhatsAppButton";
 import { motion, AnimatePresence } from "motion/react";
 import {
-  X,
   Plus,
   Minus,
   ShoppingBag,
-  MessageCircle,
-  Truck,
   Sparkles,
   ChevronDown,
   ChevronUp,
   Ruler,
   PhoneCall,
   Calendar,
+  Truck,
+  Maximize2,
+  Eye,
+  Heart,
+  ArrowRight,
+  ArrowLeft
 } from "lucide-react";
 
 interface ProductDetailsProps {
@@ -27,6 +31,7 @@ interface ProductDetailsProps {
   onClose: () => void;
   onAddToCart: (product: Product, color: { name: string; hex: string }, size: string, quantity: number) => void;
   onOpenSizeGuide: () => void;
+  onViewProduct?: (p: Product) => void;
 }
 
 export default function ProductDetails({
@@ -34,13 +39,65 @@ export default function ProductDetails({
   onClose,
   onAddToCart,
   onOpenSizeGuide,
+  onViewProduct,
 }: ProductDetailsProps) {
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || "M");
   const [selectedColor, setSelectedColor] = useState(product.colors[0] || { name: "أسود", hex: "#111111" });
   const [quantity, setQuantity] = useState(1);
 
-  // Accordion Toggles
+  // Gallery and Zoom status
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [isZooming, setIsZooming] = useState(false);
+  const [activeViewIndex, setActiveViewIndex] = useState(0);
+
+  // Accordions status
   const [expandedSection, setExpandedSection] = useState<string | null>("fabric");
+
+  // Local storage for Recently Viewed
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+
+  // Simulation of Dior-like couture macro-detailed closeups from the single premium image
+  const alternateViews = [
+    { label: "الإطلالة الرئيسية", scale: "scale-100", origin: "center center", tag: "Campaign Model" },
+    { label: "تفاصيل حياكة الأكمام", scale: "scale-[1.8]", origin: "bottom left", tag: "Sleeves Focus" },
+    { label: "الخلف والقصّة الهدلة", scale: "scale-[1.4]", origin: "top center", tag: "Back Silhouette" },
+    { label: "الطرحة والملحقات واللمسات", scale: "scale-[2.1]", origin: "center right", tag: "Lace details" },
+  ];
+
+  // Store in Recently Viewed list
+  useEffect(() => {
+    if (!product) return;
+    try {
+      const key = "tajmuhra_recently_viewed";
+      const stored = localStorage.getItem(key);
+      let list: string[] = stored ? JSON.parse(stored) : [];
+      
+      // Filter out duplicate if exists and prepend current
+      list = list.filter((id) => id !== product.id);
+      list.unshift(product.id);
+      
+      // Limit to max 6 recently viewed
+      list = list.slice(0, 6);
+      localStorage.setItem(key, JSON.stringify(list));
+
+      // Resolve items
+      const resolved = list
+        .filter((id) => id !== product.id) // Exclude current piece from recommendation list
+        .map((id) => PRODUCTS.find((p) => p.id === id))
+        .filter(Boolean) as Product[];
+
+      setRecentlyViewed(resolved);
+    } catch (e) {
+      console.error("Local storage error tracking recently viewed items:", e);
+    }
+
+    // Reset some states on product change
+    setSelectedSize(product.sizes[0] || "M");
+    setSelectedColor(product.colors[0] || { name: "أسود", hex: "#111111" });
+    setQuantity(1);
+    setActiveViewIndex(0);
+    setIsZooming(false);
+  }, [product.id]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSection(expandedSection === sectionId ? null : sectionId);
@@ -50,7 +107,7 @@ export default function ProductDetails({
   const handleDecrement = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
 
   const handleInquiry = () => {
-    const text = `مرحبًا تاج مُهرة، أرغب بطلب القطعة: [${product.name}] بمقاس: ${selectedSize} ولون: ${selectedColor.name}`;
+    const text = `مرحبًا تاج مُهرة، أرغب بطلب القطعة الفاخرة: [${product.name}] بمقاس: ${selectedSize} ولون: ${selectedColor.name}`;
     openWhatsApp(undefined, text);
   };
 
@@ -58,144 +115,166 @@ export default function ProductDetails({
     onAddToCart(product, selectedColor, selectedSize, quantity);
   };
 
+  // Hover magnifier coordinates calculator
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    setZoomPos({ x, y });
+  };
+
+  // Resolving Related Products ("You May Also Like") from the same category or brand list
+  const relatedProducts = PRODUCTS.filter(
+    (p) => p.id !== product.id && (p.category === product.category || PRODUCTS.indexOf(p) % 2 === PRODUCTS.indexOf(product) % 2)
+  ).slice(0, 4);
+
   return (
-    <div className="bg-brand-bg py-10 border-b border-brand-border select-none font-sans">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        {/* Back control */}
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-brand-border/60">
+    <div className="bg-[#FAF8F4] py-16 md:py-24 select-none font-sans overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        
+        {/* Back navigation control */}
+        <div className="flex items-center justify-between mb-16 pb-6 border-b border-[#E7E2DA]">
           <button
             id="back-to-shop-btn"
             onClick={onClose}
-            className="flex items-center gap-2 text-brand-black hover:text-brand-gold font-medium transition-colors duration-200 cursor-pointer text-sm"
+            className="group flex items-center gap-2 text-[#111111] hover:text-[#C5A46D] transition-all duration-300 cursor-pointer text-xs uppercase tracking-[0.2em] font-light"
           >
-            <span>عُودة إلى كل المنتجات</span>
-            <span className="font-serif">←</span>
+            <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
+            <span>العودة إلى صالة المجموعات</span>
           </button>
 
-          <span className="text-xs text-[#9A8F86]">
-            تصنيف المنتج: <strong className="text-brand-black font-medium">{product.category}</strong>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-[#6E6256] font-light self-center">
+            {product.category}
           </span>
         </div>
 
-        {/* Core Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        {/* ----------------- CORE EXCLUSIVE GRID ----------------- */}
+        {/* Apple/Dior split screen layout with extreme white space and gorgeous padding */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start pb-24 border-b border-[#E7E2DA]">
           
-          {/* Right Column: Premium Product Image Gallery (RTL: right Column) */}
-          <div className="lg:col-span-6 space-y-4">
-            <motion.div
-              id={`details-image-container-${product.id}`}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="relative aspect-[3/4] bg-[#F8F6F1] border border-brand-border p-1 group overflow-hidden"
+          {/* LEFT COLUMN: GIGANTIC COUTURE PREVIEWS & INTERACTIVE GALLERY VIEWPORTS */}
+          <div className="lg:col-span-7 space-y-6">
+            
+            {/* Very large primary image viewer with dynamic micro-textured cursor scanner */}
+            <div 
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsZooming(true)}
+              onMouseLeave={() => setIsZooming(false)}
+              className="relative aspect-[3/4.2] w-full bg-white border border-[#E7E2DA] p-2 overflow-hidden cursor-crosshair group shadow-sm"
             >
-              {/* Gold visual overlay banner */}
-              <div className="absolute inset-2 border border-brand-gold/10 pointer-events-none z-10" />
+              {/* Luxury gold couture guidelines frame */}
+              <div className="absolute inset-4 border border-[#C5A46D]/15 pointer-events-none z-10 group-hover:border-[#C5A46D]/30 transition-colors duration-500" />
+              
+              {/* Overlay indicating interactive zoom feature */}
+              <div className="absolute top-6 left-6 z-20 bg-black/85 backdrop-blur-sm text-white px-3 py-1.5 text-[8px] uppercase tracking-[0.25em] font-light transition-opacity duration-300 pointer-events-none flex items-center gap-1.5">
+                <Maximize2 size={9} className="text-[#C5A46D]" />
+                <span>مرري الماوس للتكبير المجهري للنسيج</span>
+              </div>
 
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover"
-              />
+              {/* Angle Tag indicator */}
+              <div className="absolute bottom-6 left-6 z-20 bg-[#FAF8F4] text-[#111111] border border-[#E7E2DA]/65 px-3.5 py-1.5 text-[9px] uppercase tracking-[0.15em] font-light font-sans">
+                {alternateViews[activeViewIndex].tag}
+              </div>
 
-              <span className="absolute bottom-6 right-6 bg-brand-black text-white text-[9px] uppercase tracking-widest px-3 py-1 border border-white/10">
-                خامات معتمدة وتفاصيل يدوية
-              </span>
-            </motion.div>
-
-            {/* Micro thumbnail strip */}
-            <div className="grid grid-cols-4 gap-4">
-              <div className="aspect-[3/4] border border-brand-gold p-1 bg-white overflow-hidden cursor-pointer">
-                <img
+              {/* Master Image Scaler with smooth transition alignment */}
+              <div className="w-full h-full overflow-hidden">
+                <motion.img
                   src={product.imageUrl}
                   alt={product.name}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover grayscale-[8%] group-hover:grayscale-0 transition-all duration-700 pointer-events-none"
+                  style={{
+                    transformOrigin: isZooming 
+                      ? `${zoomPos.x}% ${zoomPos.y}%` 
+                      : alternateViews[activeViewIndex].origin,
+                    transform: isZooming 
+                      ? "scale(2.2)" 
+                      : `scale(1) ${alternateViews[activeViewIndex].scale.replace("scale-", "") === "100" ? "" : alternateViews[activeViewIndex].scale}`,
+                    transition: isZooming ? "none" : "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)"
+                  }}
                 />
               </div>
-              <div className="aspect-[3/4] border border-brand-border p-1 bg-white/40 opacity-60 hover:opacity-100 transition-opacity overflow-hidden cursor-pointer flex items-center justify-center">
-                <span className="text-[10px] text-brand-taupe font-medium text-center">تفاصيل الأكمام</span>
-              </div>
-              <div className="aspect-[3/4] border border-brand-border p-1 bg-white/40 opacity-60 hover:opacity-100 transition-opacity overflow-hidden cursor-pointer flex items-center justify-center">
-                <span className="text-[10px] text-brand-taupe font-medium text-center">الخلف والقصّة</span>
-              </div>
-              <div className="aspect-[3/4] border border-brand-border p-1 bg-white/40 opacity-60 hover:opacity-100 transition-opacity override overflow-hidden cursor-pointer flex items-center justify-center">
-                <span className="text-[10px] text-brand-taupe font-medium text-center">الطرحة والملحقات</span>
-              </div>
             </div>
+
+            {/* Micro details thumbnail strip */}
+            <div className="grid grid-cols-4 gap-4 pt-2">
+              {alternateViews.map((view, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveViewIndex(idx)}
+                  className={`relative aspect-[3/4] border transition-all duration-500 overflow-hidden cursor-pointer p-1.5 bg-white ${
+                    activeViewIndex === idx
+                      ? "border-[#C5A46D] shadow-sm"
+                      : "border-[#E7E2DA] opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={product.imageUrl}
+                    alt={view.label}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover grayscale-[10%]"
+                    style={{
+                      transformOrigin: view.origin,
+                      transform: view.scale,
+                    }}
+                  />
+                  
+                  {/* Subtle caption bottom */}
+                  <div className="absolute inset-x-0 bottom-0 bg-black/75 p-1 text-center text-[7px] text-white font-light tracking-wide truncate">
+                    {view.label}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="text-center pt-2 text-[#6E6256] text-[10px] tracking-widest uppercase font-light">
+              تصاميم مخصصة تحافظ على الهوية والوقار الكلاسيكي للدار
+            </div>
+
           </div>
 
-          {/* Left Column: Product Info & Selectors (RTL: left Column) */}
-          <div className="lg:col-span-6 space-y-8 text-right">
+          {/* RIGHT COLUMN: PRECISE LITERALLY COMPOSING PRODUCT SPEC DETAILS */}
+          <div className="lg:col-span-5 space-y-10 text-right">
             
-            {/* Title Block */}
-            <div className="space-y-2">
-              <span className="font-serif text-[10px] tracking-widest text-brand-gold font-bold uppercase block">
+            {/* 1. Name (اسم القطعة) */}
+            <div className="space-y-4">
+              <span 
+                className="font-serif text-[11px] tracking-[0.25em] text-[#C5A46D] uppercase block font-light"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              >
                 {product.nameEn}
               </span>
-              <h1 className="text-2xl md:text-3xl font-light text-brand-black leading-normal tracking-tight font-sans">
+              <h1 className="text-3xl md:text-4.5xl font-light text-[#111111] leading-snug tracking-tight font-sans">
                 {product.name}
               </h1>
-
-              {/* Price Row */}
-              <div className="flex items-baseline gap-2 justify-start pt-1">
-                <span className="text-2xl md:text-3xl font-serif font-bold text-brand-black" style={{ fontFamily: "Georgia, serif" }}>
-                  {product.price} ر.س
-                </span>
-                <span className="text-xs text-brand-gold pr-1 font-sans">
-                  {product.unit} شامل الضريبة ومجاني الطرحة
-                </span>
-              </div>
+              
+              <div className="w-12 h-[1px] bg-[#C5A46D] mt-2" />
             </div>
 
-            {/* Sizing & Core Description */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-brand-black">نبذة الأناقة والمظهر</h3>
-              <p className="text-sm text-[#9A8F86] leading-relaxed font-sans font-light">
-                {product.longDescription}
-              </p>
+            {/* 2. Price (السعر) */}
+            <div className="bg-[#FAF8F4] border-y border-[#E7E2DA]/60 py-5 flex items-baseline gap-3.5 justify-start">
+              <span 
+                className="text-3xl md:text-4xl font-serif text-[#111111] font-light"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              >
+                {product.price} {product.unit}
+              </span>
+              <span className="text-xs text-[#C5A46D] pr-2 font-light font-sans tracking-widest uppercase">
+                شامل الضريبة المضافة لجميع خدمات الطلبات
+              </span>
             </div>
 
-            {/* Swatch Selectors */}
-            <div className="space-y-4 pt-4 border-t border-brand-border/60">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-black">الألوان المتوفرة:</span>
-                <span className="text-xs text-brand-gold font-medium">{selectedColor.name}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    id={`details-color-swatch-${color.name}`}
-                    key={color.name}
-                    onClick={() => setSelectedColor(color)}
-                    className={`flex items-center gap-2 px-4 py-2 bg-white border text-xs font-medium cursor-pointer transition-all duration-200 ${
-                      selectedColor.name === color.name
-                        ? "border-brand-gold font-bold"
-                        : "border-brand-border hover:border-brand-gold"
-                    }`}
-                  >
-                    <span
-                      className="w-3.5 h-3.5 border border-black/10 shadow-inner"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    <span>{color.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sizing Selectors */}
-            <div className="space-y-4 pt-4 border-t border-brand-border/60">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-brand-black">اختيار مقاسكِ الملائم:</span>
+            {/* 3. Sizes Selection (المقاسات) */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-light tracking-wide text-[#6E6256]">
+                <span className="uppercase text-[#111111] font-medium tracking-widest">اختيار مقاسكِ الملائم:</span>
                 <button
                   id="guide-trigger-btn-details"
                   onClick={onOpenSizeGuide}
-                  className="flex items-center gap-1.5 text-xs text-brand-gold font-semibold hover:text-brand-black transition-colors cursor-pointerSB"
+                  className="flex items-center gap-1.5 text-[#C5A46D] hover:text-[#111111] transition-colors cursor-pointer text-xs border-b border-[#C5A46D] pb-0.5"
                 >
-                  <Ruler size={13} />
-                  <span>دليل المقاسات والقياسات الرسمية</span>
+                  <Ruler size={11} />
+                  <span>دليل القياسات والمقاسات السعودية</span>
                 </button>
               </div>
               
@@ -205,10 +284,10 @@ export default function ProductDetails({
                     id={`details-size-btn-${size}`}
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-11 h-11 text-xs font-medium flex items-center justify-center border transition-all duration-200 cursor-pointer ${
+                    className={`w-12 h-12 text-xs font-light flex items-center justify-center border transition-all duration-300 cursor-pointer rounded-none ${
                       selectedSize === size
-                        ? "bg-brand-black text-[#FFF] border-brand-black scale-102"
-                        : "bg-white text-brand-black border-brand-border hover:bg-neutral-50 hover:border-brand-gold"
+                        ? "bg-[#111111] text-[#FAF8F4] border-[#111111] scale-102"
+                        : "bg-white text-[#6E6256] border-[#E7E2DA] hover:border-[#C5A46D] hover:text-[#111111]"
                     }`}
                   >
                     {size}
@@ -217,70 +296,107 @@ export default function ProductDetails({
               </div>
             </div>
 
-            {/* Sizing Quantity and Checkout Actions */}
-            <div className="space-y-4 pt-4 border-t border-brand-border/60">
-              <span className="text-xs font-semibold uppercase tracking-wider text-brand-black block">الكمية:</span>
+            {/* Swatch Color Alignment */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-light">
+                <span className="uppercase text-[#111111] font-medium tracking-widest">الألوان والنقوش المتوفرة:</span>
+                <span className="text-[#C5A46D] font-mono text-[11px]">{selectedColor.name}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.colors.map((color) => (
+                  <button
+                    id={`details-color-swatch-${color.name}`}
+                    key={color.name}
+                    onClick={() => setSelectedColor(color)}
+                    className={`flex items-center gap-2.5 px-4.5 py-2.5 bg-white border text-[11px] font-light cursor-pointer transition-all duration-300 rounded-none ${
+                      selectedColor.name === color.name
+                        ? "border-[#C5A46D] text-[#111111] font-medium"
+                        : "border-[#E7E2DA] text-[#6E6256] hover:border-[#C5A46D]/60"
+                    }`}
+                  >
+                    <span
+                      className="w-3.5 h-3.5 border border-neutral-200"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span>{color.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Sizing quantity and Order Buttons (زر الطلب) */}
+            <div className="space-y-5 pt-4">
+              <span className="text-xs font-light uppercase tracking-widest text-[#111111] block">الكمية المطلوبة للقطعة:</span>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                
                 {/* Quantity adjuster */}
-                <div className="flex items-center justify-between border border-brand-border bg-white w-32 px-2 py-2">
+                <div className="flex items-center justify-between border border-[#E7E2DA] bg-white w-32 px-3.5 py-3.5 rounded-none">
                   <button
                     id="quantity-decrease-btn"
                     onClick={handleDecrement}
-                    className="p-1 text-brand-taupe hover:text-brand-black cursor-pointer"
+                    className="p-1 text-[#6E6256] hover:text-[#111111] cursor-pointer"
                   >
-                    <Minus size={13} />
+                    <Minus size={11} />
                   </button>
-                  <span className="font-medium text-sm w-8 text-center">{quantity}</span>
+                  <span className="text-xs font-light w-8 text-center">{quantity}</span>
                   <button
                     id="quantity-increase-btn"
                     onClick={handleIncrement}
-                    className="p-1 text-brand-taupe hover:text-brand-black cursor-pointer"
+                    className="p-1 text-[#6E6256] hover:text-[#111111] cursor-pointer"
                   >
-                    <Plus size={13} />
+                    <Plus size={11} />
                   </button>
                 </div>
 
-                {/* Submitting Actions */}
+                {/* Submitting Checkout Action Blocks */}
                 <div className="flex-1 grid grid-cols-2 gap-3">
                   {/* Shopping cart */}
                   <button
                     id="details-add-to-cart-btn"
                     onClick={handleAdd}
-                    className="flex items-center justify-center gap-2 bg-brand-black hover:bg-brand-navy text-[#FFF] px-6 py-3.5 text-xs font-medium transition-all duration-300 scale-100 active:scale-98 cursor-pointer uppercase tracking-wider"
+                    className="flex justify-center items-center gap-2.5 bg-[#111111] hover:bg-neutral-800 text-white px-6 py-4 text-xs font-light transition-all duration-350 cursor-pointer uppercase tracking-[0.18em] rounded-none shadow-sm"
                   >
-                    <ShoppingBag size={14} />
-                    <span>إضافة إلى الحقيبة</span>
+                    <ShoppingBag size={13} className="text-[#C5A46D]" />
+                    <span>إضافة للحقيبة</span>
                   </button>
 
                   {/* Direct checkout via WhatsApp */}
                   <button
                     id="details-whatsapp-buy-btn"
                     onClick={handleInquiry}
-                    className="flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-[#FFF] px-6 py-3.5 text-xs font-medium transition-all duration-300 scale-100 active:scale-98 font-sans cursor-pointer tracking-wider"
+                    className="flex justify-center items-center gap-2.5 bg-transparent text-[#111111] border border-[#E7E2DA] hover:bg-[#111111] hover:text-[#FAF8F4] hover:border-[#111111] px-6 py-4 text-xs font-light transition-all duration-350 cursor-pointer uppercase tracking-[0.18em] rounded-none"
                   >
-                    <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884 0 2.225.584 3.914 1.517 5.514l-.947 3.46 3.568-.937z" />
-                    </svg>
-                    <span>شراء عبر واتساب</span>
+                    <PhoneCall size={12} className="text-[#C5A46D]" />
+                    <span>طلب فوري واتساب</span>
                   </button>
                 </div>
+
               </div>
             </div>
 
-            {/* Accordion List details (Clean Minimalism split grid) */}
-            <div className="border-t border-b border-brand-border mt-8 bg-transparent divide-y divide-brand-border">
-              {/* Product Sizing Details */}
-              <div className="py-2">
+            {/* 5. Description (الوصف) */}
+            <div className="space-y-3 pt-6 border-t border-[#E7E2DA]/65">
+              <h3 className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#111111]">مفهوم التصميم والمظهر</h3>
+              <p className="text-xs md:text-sm text-[#6E6256] leading-relaxed font-sans font-light">
+                {product.longDescription}
+              </p>
+            </div>
+
+            {/* 6, 7, 8. Fabric, Care & Shipping Accordions (الخامة والعناية والشحن) */}
+            <div className="border-t border-[#E7E2DA] pt-2 divide-y divide-[#E7E2DA]">
+              
+              {/* Fabric Specs (الخامة) */}
+              <div className="py-3">
                 <button
                   id="accordion-fabric-trigger"
                   onClick={() => toggleSection("fabric")}
-                  className="w-full flex items-center justify-between p-3 text-right text-xs md:text-sm font-semibold text-brand-black hover:bg-neutral-50 transition-colors"
+                  className="w-full flex items-center justify-between p-2 text-right hover:bg-[#FAF8F4] transition-colors"
                 >
-                  <span className="flex items-center gap-2 font-sans font-medium text-xs md:text-sm text-brand-black">
-                    <Sparkles size={12} className="text-brand-gold" />
-                    تفاصيل ومكونات المنتج
+                  <span className="flex items-center gap-2.5 font-sans font-light text-xs md:text-sm text-[#111111]">
+                    <Sparkles size={11} className="text-[#C5A46D]" />
+                    <span>مكونات وتفاصيل الخامة والنسيج</span>
                   </span>
-                  {expandedSection === "fabric" ? <ChevronUp size={14} className="text-[#9A8F86]" /> : <ChevronDown size={14} className="text-[#9A8F86]" />}
+                  {expandedSection === "fabric" ? <ChevronUp size={13} className="text-[#6E6256]" /> : <ChevronDown size={13} className="text-[#6E6256]" />}
                 </button>
                 <AnimatePresence initial={false}>
                   {expandedSection === "fabric" && (
@@ -290,7 +406,7 @@ export default function ProductDetails({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <ul className="p-4 bg-[#F8F6F1]/40 text-xs md:text-sm text-[#9A8F86] space-y-2 font-sans font-light list-disc list-inside">
+                      <ul className="p-4 bg-white/40 text-xs md:text-sm text-[#6E6256] space-y-2.5 font-sans font-light list-disc list-inside">
                         {product.fabricDetails.map((det, index) => (
                           <li key={index} className="leading-relaxed">
                             {det}
@@ -302,18 +418,18 @@ export default function ProductDetails({
                 </AnimatePresence>
               </div>
 
-              {/* Fabric care instructions */}
-              <div className="py-2">
+              {/* Care Instructions (العناية) */}
+              <div className="py-3">
                 <button
                   id="accordion-care-trigger"
                   onClick={() => toggleSection("care")}
-                  className="w-full flex items-center justify-between p-3 text-right text-xs md:text-sm font-semibold text-brand-black hover:bg-neutral-50 transition-colors"
+                  className="w-full flex items-center justify-between p-2 text-right hover:bg-[#FAF8F4] transition-colors"
                 >
-                  <span className="flex items-center gap-2 font-sans font-medium text-xs md:text-sm text-brand-black">
-                    <Calendar size={12} className="text-brand-gold" />
-                    طريقة الغسيل والعناية بالقماش
+                  <span className="flex items-center gap-2.5 font-sans font-light text-xs md:text-sm text-[#111111]">
+                    <Calendar size={11} className="text-[#C5A46D]" />
+                    <span>طريقة الغسيل والعناية بالعباءة</span>
                   </span>
-                  {expandedSection === "care" ? <ChevronUp size={14} className="text-[#9A8F86]" /> : <ChevronDown size={14} className="text-[#9A8F86]" />}
+                  {expandedSection === "care" ? <ChevronUp size={13} className="text-[#6E6256]" /> : <ChevronDown size={13} className="text-[#6E6256]" />}
                 </button>
                 <AnimatePresence initial={false}>
                   {expandedSection === "care" && (
@@ -323,7 +439,7 @@ export default function ProductDetails({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <ul className="p-4 bg-[#F8F6F1]/40 text-xs md:text-sm text-[#9A8F86] space-y-2 font-sans font-light list-disc list-inside">
+                      <ul className="p-4 bg-white/40 text-xs md:text-sm text-[#6E6256] space-y-2.5 font-sans font-light list-disc list-inside">
                         {product.careInstructions.map((ins, index) => (
                           <li key={index} className="leading-relaxed">
                             {ins}
@@ -335,18 +451,18 @@ export default function ProductDetails({
                 </AnimatePresence>
               </div>
 
-              {/* Shipping, Returns and exchanges info */}
-              <div className="py-2">
+              {/* Shipping Instructions (الشحن) */}
+              <div className="py-3">
                 <button
                   id="accordion-shipping-trigger"
                   onClick={() => toggleSection("shipping")}
-                  className="w-full flex items-center justify-between p-3 text-right text-xs md:text-sm font-semibold text-brand-black hover:bg-neutral-50 transition-colors"
+                  className="w-full flex items-center justify-between p-2 text-right hover:bg-[#FAF8F4] transition-colors"
                 >
-                  <span className="flex items-center gap-2 font-sans font-medium text-xs md:text-sm text-brand-black">
-                    <Truck size={12} className="text-brand-gold" />
-                    خدمات الشحن وسياسة الاستبدال
+                  <span className="flex items-center gap-2.5 font-sans font-light text-xs md:text-sm text-[#111111]">
+                    <Truck size={11} className="text-[#C5A46D]" />
+                    <span>خدمات التوصيل والشحن وسياسة الاستبدال</span>
                   </span>
-                  {expandedSection === "shipping" ? <ChevronUp size={14} className="text-[#9A8F86]" /> : <ChevronDown size={14} className="text-[#9A8F86]" />}
+                  {expandedSection === "shipping" ? <ChevronUp size={13} className="text-[#6E6256]" /> : <ChevronDown size={13} className="text-[#6E6256]" />}
                 </button>
                 <AnimatePresence initial={false}>
                   {expandedSection === "shipping" && (
@@ -356,7 +472,7 @@ export default function ProductDetails({
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <ul className="p-4 bg-[#F8F6F1]/40 text-xs md:text-sm text-[#9A8F86] space-y-2 font-sans font-light list-disc list-inside">
+                      <ul className="p-4 bg-white/40 text-xs md:text-sm text-[#6E6256] space-y-2.5 font-sans font-light list-disc list-inside">
                         {product.shippingDetails.map((ship, index) => (
                           <li key={index} className="leading-relaxed">
                             {ship}
@@ -367,17 +483,128 @@ export default function ProductDetails({
                   )}
                 </AnimatePresence>
               </div>
+
             </div>
 
           </div>
         </div>
+
+        {/* ----------------- YOU MAY ALSO LIKE SECTION ----------------- */}
+        <section className="py-20 select-none text-right space-y-10 border-b border-[#E7E2DA]/50">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <span 
+              className="text-[#C5A46D] text-[10px] uppercase tracking-[0.22em] font-serif font-light block"
+              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            >
+              TAJMUHRA SELECTIONS
+            </span>
+            <div className="space-y-1.5 md:text-right">
+              <h2 className="text-2xl md:text-3.5xl font-light text-[#111111] tracking-tight">
+                You May Also Like • قد ينال إعجابكِ أيضاً
+              </h2>
+              <p className="text-xs text-[#6E6256] font-light leading-relaxed">
+                عباءات وأثواب منسوجة ببراعة تكمّل مجموعتك المظهرية الفاخرة للدار.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {relatedProducts.map((p) => (
+              <div 
+                key={p.id}
+                onClick={() => onViewProduct && onViewProduct(p)}
+                className="group cursor-pointer space-y-4 text-right bg-[#FAF8F4] border border-[#E7E2DA]/50 p-2 hover:border-[#C5A46D] transition-all duration-300"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden p-1 bg-[#FAF8F4]">
+                  <img
+                    src={p.imageUrl}
+                    alt={p.name}
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover grayscale-[8%] group-hover:grayscale-0 group-hover:scale-[1.04] transition-all duration-700"
+                  />
+                  <div className="absolute inset-2 border border-[#C5A46D]/10 pointer-events-none" />
+                </div>
+                <div className="px-1 space-y-2">
+                  <span className="text-[9px] uppercase tracking-widest text-[#C5A46D] block font-light">
+                    {p.nameEn.split(" ")[0]}
+                  </span>
+                  <h3 className="text-sm font-light text-[#111111] group-hover:text-[#C5A46D] transition-colors duration-200 truncate">
+                    {p.name}
+                  </h3>
+                  <p 
+                    className="text-xs text-[#111111] font-serif" 
+                    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  >
+                    {p.price} ر.س
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ----------------- RECENTLY VIEWED SECTION ----------------- */}
+        {recentlyViewed.length > 0 && (
+          <section className="py-20 select-none text-right space-y-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+              <span 
+                className="text-[#C5A46D] text-[10px] uppercase tracking-[0.22em] font-serif font-light block"
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+              >
+                YOUR SESSION LOGS
+              </span>
+              <div className="space-y-1.5 md:text-right">
+                <h2 className="text-2xl md:text-3.5xl font-light text-[#111111] tracking-tight">
+                  Recently Viewed • قطع شاهدتها مؤخراً
+                </h2>
+                <p className="text-xs text-[#6E6256] font-light leading-relaxed">
+                  تصفّحي القطع والمطرزات التي نالت اهتمامكِ من قبل للوصول السريع ومقارنة القياسات.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {recentlyViewed.map((p) => (
+                <div 
+                  key={p.id}
+                  onClick={() => onViewProduct && onViewProduct(p)}
+                  className="group cursor-pointer space-y-3 text-right bg-[#FAF8F4] border border-[#E7E2DA]/40 p-1.5 hover:border-neutral-400 transition-all duration-300"
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden bg-white">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-transform duration-500 group-hover:scale-102"
+                    />
+                  </div>
+                  <div className="px-1 space-y-1">
+                    <h3 className="text-xs font-light text-[#111111] truncate">
+                      {p.name}
+                    </h3>
+                    <p 
+                      className="text-xs text-[#6E6256] font-serif"
+                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                    >
+                      {p.price} ر.س
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
       </div>
 
       {/* Sticky Bottom buying bar on Mobile screens */}
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-brand-border p-4 z-30 lg:hidden flex items-center justify-between gap-4 font-sans max-w-full">
+      <div className="fixed bottom-0 inset-x-0 bg-[#FAF8F4]/98 backdrop-blur-md border-t border-[#E7E2DA] p-4 z-30 lg:hidden flex items-center justify-between gap-4 font-sans max-w-full">
         <div className="text-right">
-          <span className="block text-[9px] text-[#9A8F86]">السعر الإجمالي</span>
-          <span className="block font-serif text-base font-bold text-brand-black leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+          <span className="block text-[9px] text-[#6E6256]">السعر الإجمالي</span>
+          <span 
+            className="block font-serif text-base text-[#111111] leading-tight" 
+            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+          >
             {product.price * quantity} ر.س
           </span>
         </div>
@@ -387,9 +614,9 @@ export default function ProductDetails({
           <button
             id="mobile-sticky-add-cart-btn"
             onClick={handleAdd}
-            className="flex-1 bg-brand-black hover:bg-brand-navy text-white py-3 px-2 rounded-none text-xs font-medium flex items-center justify-center gap-1.5 cursor-pointer uppercase"
+            className="flex-1 bg-[#111111] hover:bg-neutral-800 text-white py-3 px-2 rounded-none text-xs font-light flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider h-11"
           >
-            <ShoppingBag size={13} />
+            <ShoppingBag size={12} />
             <span>الحقيبة</span>
           </button>
 
@@ -397,12 +624,10 @@ export default function ProductDetails({
           <button
             id="mobile-sticky-whatsapp-btn"
             onClick={handleInquiry}
-            className="flex-1 bg-white text-[#25D366] border border-[#25D366]/40 hover:bg-[#25D366] hover:text-white py-3 px-2 rounded-none text-xs font-medium flex items-center justify-center gap-1.5 font-sans cursor-pointer"
+            className="flex-1 bg-transparent text-[#6E6256] border border-[#E7E2DA] hover:bg-[#111111] hover:text-[#FAF8F4] py-3 px-2 rounded-none text-xs font-light flex items-center justify-center gap-1.5 font-sans cursor-pointer h-11"
           >
-            <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884 0 2.225.584 3.914 1.517 5.514l-.947 3.46 3.568-.937z" />
-            </svg>
-            <span>واتساب</span>
+            <PhoneCall size={12} className="text-[#C5A46D]" />
+            <span>طلب فوري</span>
           </button>
         </div>
       </div>

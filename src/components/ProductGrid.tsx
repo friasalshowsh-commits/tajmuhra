@@ -50,8 +50,8 @@ export default function ProductGrid({
         result = result.filter((p) => p.category === catObj.name);
       }
     } else if (activeSection === "home") {
-      // By default home shows all selection, but we can limit or show the featured ones
-      result = [...PRODUCTS];
+      // Limit to exactly 6 featured products on the homepage view as requested
+      result = PRODUCTS.slice(0, 6);
     } else if (activeSection === "all") {
       result = [...PRODUCTS];
     }
@@ -74,6 +74,7 @@ export default function ProductGrid({
   // Section heading and text
   const sectionTitle = useMemo(() => {
     if (searchQuery.trim()) return "نتائج البحث الخاص بكِ";
+    if (activeSection === "home") return "المجموعة المختارة | Featured Products";
     if (activeSection === "abayas") return "مجموعة العباءات الفاخرة";
     if (activeSection === "colors") return "الألوان الهادئة والطبيعية";
     if (activeSection === "offers") return "العروض والأسعار المخفضة";
@@ -97,40 +98,43 @@ export default function ProductGrid({
   }, [activeSection, searchQuery, filteredProducts.length]);
 
   return (
-    <section id="shop-section" className="py-16 bg-brand-bg select-none font-sans scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 space-y-12">
+    <section id="shop-section" className="py-24 md:py-32 bg-[#FAF8F4] select-none font-sans scroll-mt-20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-20">
         
         {/* Section Header */}
-        <div className="text-center max-w-2xl mx-auto space-y-4">
+        <div className="text-center max-w-3xl mx-auto space-y-6">
           <div className="flex justify-center">
-            <span className="inline-flex items-center gap-1.5 bg-transparent border border-brand-gold/25 text-brand-gold text-[9px] font-sans font-bold px-3 py-1 uppercase tracking-[0.2em]">
-              <Sparkles size={11} />
-              <span>أناقة تاج مُهرة الأصيلة</span>
+            <span 
+              className="inline-flex items-center gap-2 bg-transparent border border-[#C5A46D]/30 text-[#C5A46D] text-[10px] font-serif font-light px-4 py-1 uppercase tracking-[0.3em]"
+              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            >
+              <Sparkles size={10} className="text-[#C5A46D]" />
+              <span>L'ÉLÉGANCE INTEMPORELLE</span>
             </span>
           </div>
           
-          <h2 className="text-2xl md:text-3xl font-light text-brand-black tracking-tight leading-tight">
+          <h2 className="text-3xl md:text-4xl font-light text-[#111111] tracking-tight leading-snug">
             {sectionTitle}
           </h2>
           
-          <p className="text-sm text-[#9A8F86] font-light leading-relaxed">
+          <p className="text-xs md:text-sm text-[#6E6256] font-light leading-relaxed max-w-xl mx-auto opacity-90">
             {sectionSubtitle}
           </p>
         </div>
 
         {/* Filter Tab Row */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-brand-border pb-5">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 border-b border-brand-border pb-6">
+          <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
             <button
               id="filter-all-btn"
               onClick={() => onNavigate("all")}
-              className={`px-5 py-2.5 text-xs font-medium cursor-pointer transition-colors duration-200 ${
+              className={`px-6 py-3 text-[11px] uppercase tracking-widest font-light transition-all duration-300 cursor-pointer rounded-none ${
                 activeSection === "all" || activeSection === "home"
-                  ? "bg-brand-black text-white"
-                  : "bg-white text-brand-black border border-brand-border hover:bg-neutral-50"
+                  ? "bg-[#111111] text-white"
+                  : "bg-transparent text-[#6E6256] border border-[#FAF8F4] hover:text-[#111111] hover:border-brand-border"
               }`}
             >
-              كل التصاميم ({PRODUCTS.length})
+              كل القطع ({PRODUCTS.length})
             </button>
 
             {CATEGORIES.map((cat) => (
@@ -138,10 +142,10 @@ export default function ProductGrid({
                 id={`filter-${cat.id}-btn`}
                 key={cat.id}
                 onClick={() => onNavigate(cat.id)}
-                className={`px-5 py-2.5 text-xs font-medium whitespace-nowrap cursor-pointer transition-colors duration-200 ${
+                className={`px-6 py-3 text-[11px] uppercase tracking-widest font-light whitespace-nowrap transition-all duration-300 cursor-pointer rounded-none ${
                   activeSection === cat.id
-                    ? "bg-brand-black text-white"
-                    : "bg-white text-brand-black border border-brand-border hover:bg-neutral-50"
+                    ? "bg-[#111111] text-white"
+                    : "bg-transparent text-[#6E6256] border border-[#FAF8F4] hover:text-[#111111] hover:border-brand-border"
                 }`}
               >
                 {cat.name}
@@ -150,25 +154,25 @@ export default function ProductGrid({
           </div>
 
           {/* Quick Stats / Actions */}
-          <div className="flex items-center gap-4 text-xs font-medium text-brand-black">
+          <div className="flex items-center justify-between md:justify-end gap-4 text-xs font-light text-brand-black">
             {searchQuery && (
               <button
                 id="clear-search-btn"
                 onClick={() => onNavigate("all")}
-                className="flex items-center gap-1 bg-white border border-brand-border text-brand-black px-3 py-1.5 hover:bg-neutral-50"
+                className="flex items-center gap-1.5 bg-transparent border border-brand-border text-brand-black px-4 py-2 hover:bg-neutral-50"
               >
                 <span>إلغاء البحث</span>
-                <X size={12} />
+                <X size={11} />
               </button>
             )}
 
             <button
               id="open-size-guide-sidebar-btn"
               onClick={onOpenSizeGuide}
-              className="flex items-center gap-2 text-brand-black bg-white border border-brand-border px-4 py-2 hover:bg-neutral-50 cursor-pointer hover:text-brand-gold transition-colors duration-200"
+              className="flex items-center gap-2 text-[#111111] bg-transparent border border-[#111111] px-5 py-2.5 hover:bg-brand-black hover:text-white cursor-pointer transition-all duration-350 tracking-wide rounded-none text-[11px]"
             >
-              <SlidersHorizontal size={13} />
-              <span>جدول المقاسات الفاخرة</span>
+              <SlidersHorizontal size={12} />
+              <span>دليل المقاسات والقياس</span>
             </button>
           </div>
         </div>
@@ -178,7 +182,7 @@ export default function ProductGrid({
           {filteredProducts.length > 0 ? (
             <motion.div
               layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-x-12 md:gap-y-16"
             >
               {filteredProducts.map((product) => (
                 <ProductCard

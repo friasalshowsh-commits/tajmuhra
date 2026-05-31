@@ -5,7 +5,18 @@
 
 import React from "react";
 import { getWhatsAppLink } from "./WhatsAppButton";
-import { PhoneCall, Music2, ShieldCheck, Sparkles, MessageSquare } from "lucide-react";
+import {
+  PhoneCall,
+  Instagram,
+  Music2,
+  ShieldCheck,
+  Sparkles,
+  BookOpen,
+  ArrowUp,
+  Landmark,
+  Shield,
+  HelpCircle
+} from "lucide-react";
 
 interface FooterProps {
   onNavigate: (section: string) => void;
@@ -13,187 +24,214 @@ interface FooterProps {
 }
 
 export default function Footer({ onNavigate, onSizeGuideClick }: FooterProps) {
+  
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="bg-white border-t border-brand-border py-12 md:py-16 text-brand-black select-none font-sans mt-auto">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
+    <footer className="bg-[#FAF8F4] border-t border-[#E7E2DA] py-20 md:py-28 text-[#111111] select-none font-sans mt-auto">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 space-y-16">
+        
+        {/* Top Section with Logo Centering and Scroll top */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-[#E7E2DA]/65">
+          <div className="text-right flex flex-col items-center md:items-start">
+            <span 
+              className="font-serif text-2xl md:text-3.5xl font-light tracking-[0.25em] text-[#111111] block pl-[0.25em]"
+              style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+            >
+              TAJMUHRA
+            </span>
+            <span className="font-sans text-[10px] tracking-[0.35em] text-[#C5A46D] block mt-1 uppercase">
+              تاج مُهرة للأناقة والعباءات
+            </span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <button
+              id="footer-scroll-top-btn"
+              onClick={handleScrollTop}
+              className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#6E6256] hover:text-[#111111] transition-colors cursor-pointer border border-[#E7E2DA] px-4 py-2.5 bg-white"
+            >
+              <span>العودة للأعلى</span>
+              <ArrowUp size={11} className="text-[#C5A46D]" />
+            </button>
+          </div>
+        </div>
+
+        {/* Core Nav Split Grid (4 Column layout) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-12 text-right">
           
-          {/* Brand Intro Column (4 Columns on Desktop) */}
-          <div className="md:col-span-5 space-y-6 text-right">
-            <div className="flex flex-col items-start text-right">
-              <span className="font-serif text-xl sm:text-2xl font-bold tracking-[0.16em] text-brand-black block">
-                TAJMUHRA
-              </span>
-              <span className="font-sans text-[10px] sm:text-xs font-semibold tracking-[0.3em] text-brand-gold block mt-0.5">
-                تاج مُهرة
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-[#9A8F86] leading-relaxed font-sans font-light max-w-sm">
-              تاج مُهرة متجر يابى إلا تقديم تصاميم محتشمة راقية تجمع بين الراحة، البساطة، والتفاصيل الأنثوية الهادئة. نختار قطعنا بعناية فائقة لتناسب إطلالتك اليومية ومشاويرك الخاصة، بأسعار منافسة ملائمة وبدعم مباشر وموثوق عبر واتساب.
+          {/* Col 1: Brand manifesto (5 Columns) */}
+          <div className="md:col-span-5 space-y-6">
+            <span className="text-[#C5A46D] text-[10px] uppercase tracking-widest font-serif font-light block">
+              THE HOUSE NARRATIVE
+            </span>
+            <p className="text-xs md:text-sm text-[#6E6256] leading-relaxed font-light max-w-sm">
+              تلتزم دار تاج مُهرة بتفصيل وحياكة أرقى العباءات والجلابيات مستندين إلى جودة منسوجات الكريب الملكية، دقة العمل اليدوي، والتغليف الفاخر الذي يليق بتقديرك ومناسباتكِ الاستثنائية بالمملكة العربية السعودية والخليج العربي.
             </p>
-
-            {/* Saudi Business Verification Sign / Trust labels */}
-            <div className="flex items-center gap-3 text-[10px] text-[#9A8F86] font-semibold bg-[#F8F6F1] px-4 py-2.5 border border-brand-border/60 w-fit">
-              <ShieldCheck size={14} className="text-[#25D366]" />
-              <span>متجر مرخص سعودي موثوق عبر منصة الأعمال</span>
+            
+            {/* Business Verification License logo */}
+            <div className="inline-flex items-center gap-2.5 text-[10px] text-[#6E6256] font-light bg-white border border-[#E7E2DA] px-4 py-2.5">
+              <ShieldCheck size={13} className="text-[#C5A46D]" />
+              <span>متجر مرخص ومسجل كليًا عبر منصة المركز السعودي للأعمال</span>
             </div>
           </div>
 
-          {/* Quick Links Column (3 Columns) */}
-          <div className="md:col-span-2 space-y-4 text-right">
-            <h4 className="font-semibold text-xs tracking-wider uppercase text-brand-black border-b border-brand-border pb-2">
-              روابط المتجر
+          {/* Col 2: Navigation Links (2 Columns) */}
+          <div className="md:col-span-2 space-y-4">
+            <h4 className="font-light text-[11px] tracking-[0.2em] uppercase text-[#111111] border-b border-[#E7E2DA]/80 pb-2">
+              علامات ومجموعات الدار
             </h4>
-            <ul className="space-y-2.5 text-xs text-[#9A8F86] font-medium">
+            <ul className="space-y-2.5 text-xs text-[#6E6256] font-light">
               <li>
                 <button
-                  id="footer-nav-home"
+                  id="foot-link-home"
                   onClick={() => onNavigate("home")}
-                  className="hover:text-brand-gold transition-colors block cursor-pointer"
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
                 >
                   الرئيسية
                 </button>
               </li>
               <li>
                 <button
-                  id="footer-nav-all"
+                  id="foot-link-all"
                   onClick={() => onNavigate("all")}
-                  className="hover:text-brand-gold transition-colors block cursor-pointer"
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
                 >
-                  كل المنتجات والعباءات
+                  كل القطع والعباءات
                 </button>
               </li>
               <li>
                 <button
-                  id="footer-nav-offers"
-                  onClick={() => onNavigate("offers")}
-                  className="hover:text-brand-gold transition-colors block cursor-pointer"
-                >
-                  العروض المميزة
-                </button>
-              </li>
-              <li>
-                <button
-                  id="footer-nav-size"
-                  onClick={onSizeGuideClick}
-                  className="hover:text-brand-gold transition-colors block cursor-pointer"
-                >
-                  دليل مقاساتي (Sizeguide)
-                </button>
-              </li>
-              <li>
-                <button
-                  id="footer-nav-about"
+                  id="foot-link-about"
                   onClick={() => onNavigate("about")}
-                  className="hover:text-brand-gold transition-colors block cursor-pointer"
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
                 >
-                  من نحن وقصتنا
+                  من نحن والقيمة
                 </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Customer Support Links (3 Columns) */}
-          <div className="md:col-span-2 space-y-4 text-right">
-            <h4 className="font-semibold text-xs tracking-wider uppercase text-brand-black border-b border-brand-border pb-2">
-              خدمة العملاء
-            </h4>
-            <ul className="space-y-2.5 text-xs text-[#9A8F86] font-medium">
-              <li>
-                <a
-                  id="footer-shipping-link"
-                  href={getWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand-gold transition-colors block"
-                >
-                  الشحن والسياسات
-                </a>
-              </li>
-              <li>
-                <a
-                  id="footer-return-link"
-                  href={getWhatsAppLink(undefined, "مرحبًا، أرغب في معرفة شروط الاستبدال والاسترجاع")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand-gold transition-colors block"
-                >
-                  الاستبدال والاسترجاع
-                </a>
               </li>
               <li>
                 <button
-                  id="footer-sizes-guide-secondary-btn"
-                  onClick={onSizeGuideClick}
-                  className="hover:text-brand-gold transition-colors block text-right cursor-pointer"
+                  id="foot-link-journal"
+                  onClick={() => onNavigate("journal")}
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
                 >
-                  استشيري مستشار القياس
+                  ثقافة الدار (Journal)
                 </button>
-              </li>
-              <li>
-                <a
-                  id="footer-business-verify-link"
-                  href="https://www.tiktok.com/@tajmuhra"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-brand-gold transition-colors block"
-                >
-                  قناتنا على تيك توك
-                </a>
               </li>
             </ul>
           </div>
 
-          {/* Connect & Social Media Column (3 Columns) */}
-          <div className="md:col-span-3 space-y-4 text-right">
-            <h4 className="font-semibold text-xs tracking-wider uppercase text-brand-black border-b border-brand-border pb-2">
-              تواصل وأناقة مباشرة
+          {/* Col 3: Sizing and Returns (2 Columns) */}
+          <div className="md:col-span-2 space-y-4">
+            <h4 className="font-light text-[11px] tracking-[0.2em] uppercase text-[#111111] border-b border-[#E7E2DA]/80 pb-2">
+              العملاء والدعم
             </h4>
-            
-            <p className="text-xs text-[#9A8F86] leading-relaxed font-light font-sans">
-              نحن سعداء برغبتكن ومقترحاتكن طوال اليوم ومستعدون للرد على تساؤلاتكن مباشرة.
-            </p>
+            <ul className="space-y-2.5 text-xs text-[#6E6256] font-light">
+              <li>
+                <button
+                  id="foot-link-sizing"
+                  onClick={onSizeGuideClick}
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
+                >
+                  دليل ومستشار القياسات
+                </button>
+              </li>
+              <li>
+                <button
+                  id="foot-link-shipping"
+                  onClick={() => onNavigate("shipping")}
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
+                >
+                  الشحن والتبديل السهل
+                </button>
+              </li>
+              <li>
+                <button
+                  id="foot-link-contact"
+                  onClick={() => onNavigate("contact")}
+                  className="hover:text-[#C5A46D] transition-colors cursor-pointer text-right w-full block"
+                >
+                  لحجز موعد الأتيليه
+                </button>
+              </li>
+              <li>
+                <button
+                  id="foot-link-admin"
+                  onClick={() => onNavigate("admin")}
+                  className="text-[#C5A46D] hover:text-[#111111] transition-colors cursor-pointer text-right w-full block"
+                >
+                  لوحة إدارة الطلبيات
+                </button>
+              </li>
+            </ul>
+          </div>
 
-            <div className="space-y-2.5">
-              {/* WhatsApp direct dial */}
+          {/* Col 4: Social Accounts (3 Columns) */}
+          <div className="md:col-span-3 space-y-5">
+            <h4 className="font-light text-[11px] tracking-[0.2em] uppercase text-[#111111] border-b border-[#E7E2DA]/80 pb-2">
+              قنوات ومجتمع الدار
+            </h4>
+            <p className="text-xs text-[#6E6256] leading-relaxed font-light">
+              شاركينا إطلالتكِ الفريدة، وتصفحي تصاميمنا الأسبوعية ولقطات الكواليس عبر حساباتنا الموثقة.
+            </p>
+            
+            <div className="flex gap-4.5 justify-start">
+              {/* Instagram */}
               <a
-                id="footer-direct-wa-button"
-                href={getWhatsAppLink()}
+                id="footer-insta-circle"
+                href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#F8F6F1] hover:bg-brand-black hover:text-white text-brand-black border border-brand-border/80 px-4 py-2.5 rounded-none text-xs font-semibold cursor-pointer transition-colors duration-200"
+                className="w-10 h-10 rounded-none border border-[#E7E2DA] bg-white text-[#111111] hover:text-[#C5A46D] hover:border-[#C5A46D] transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="Instagram"
               >
-                <PhoneCall size={14} className="text-[#25D366]" />
-                <span className="font-mono">٠٥٠٠٤٩٥٧٣١</span>
+                <Instagram size={15} />
               </a>
 
-              {/* TikTok Profile */}
+              {/* TikTok */}
               <a
-                id="footer-direct-tiktok-button"
+                id="footer-tiktok-circle"
                 href="https://www.tiktok.com/@tajmuhra"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[#F8F6F1] hover:bg-brand-black hover:text-white text-brand-black border border-brand-border/80 px-4 py-2.5 rounded-none text-xs font-semibold cursor-pointer transition-colors duration-200 font-sans"
+                className="w-10 h-10 rounded-none border border-[#E7E2DA] bg-white text-[#111111] hover:text-[#C5A46D] hover:border-[#C5A46D] transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="TikTok"
               >
-                <Music2 size={13} className="text-brand-gold" />
-                <span>@tajmuhra على تيك توك</span>
+                <Music2 size={15} />
+              </a>
+
+              {/* WhatsApp direct customer line */}
+              <a
+                id="footer-wa-circle"
+                href={getWhatsAppLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-none border border-[#E7E2DA] bg-white text-[#111111] hover:text-[#C5A46D] hover:border-[#C5A46D] transition-all flex items-center justify-center cursor-pointer shadow-xs"
+                title="WhatsApp"
+              >
+                <PhoneCall size={14} className="text-[#C5A46D]" />
               </a>
             </div>
+
+            <p className="text-[10px] text-[#9A8F86] font-light">
+              هاتف تنسيق المقاس الكلي: <span className="font-mono">٠٥٠٠٤٩٥٧٣١</span>
+            </p>
           </div>
 
         </div>
 
-        {/* Lower copyright bar */}
-        <div className="mt-12 pt-6 border-t border-brand-border/60 flex flex-col md:flex-row items-center justify-between gap-4 font-sans text-xs text-[#9A8F86]">
-          <p>© 2026 TAJMUHRA. جميع الحقوق محفوظة.</p>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1">
-              <Sparkles size={11} className="text-brand-gold" />
-              <span>أناقة محتشمة</span>
+        {/* Bottom licensing info */}
+        <div className="mt-16 pt-8 border-t border-[#E7E2DA]/60 flex flex-col md:flex-row items-center justify-between gap-4 font-sans text-[11px] text-[#6E6256] font-light">
+          <p>© {new Date().getFullYear()} TAJMUHRA COUTURE. متاح شحن مجاني لكافة أطياف المملكة الخليجية. جميع الحقوق محفوظة.</p>
+          <div className="flex items-center gap-4 text-right">
+            <span className="flex items-center gap-1.5 text-[#C5A46D] font-medium">
+              <Sparkles size={11} className="animate-spin" style={{ animationDuration: '6s' }} />
+              <span>هوية الدير الكلاسيكية الفاخرة</span>
             </span>
-            <span className="text-brand-border">|</span>
-            <span>صُنع بحرفة وشغف للسعودية والخليج</span>
+            <span className="text-[#E7E2DA]">|</span>
+            <span>بواسطة الأتيليه الخاص</span>
           </div>
         </div>
 

@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Tajawal:wght@300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "IBM Plex Sans Arabic", "Tajawal", system-ui, -apple-system, sans-serif;
-  --font-serif: "Playfair Display", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
   
-  --color-brand-bg: #F8F6F1;
+  --color-brand-bg: #FAF8F4;
   --color-brand-black: #111111;
-  --color-brand-navy: #0B1F3A;
-  --color-brand-gold: #C8A96B;
-  --color-brand-taupe: #9A8F86;
+  --color-brand-navy: #111111;
+  --color-brand-gold: #C5A46D;
+  --color-brand-taupe: #6E6256;
   --color-brand-border: #E7E2DA;
 }
 
@@ -20,6 +20,13 @@
     font-family: var(--font-sans);
     direction: rtl;
   }
+}
+
+/* English high-end spacing rule */
+.font-serif-lux {
+  font-family: var(--font-serif);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
 }
 
 /* Custom Hide Scrollbar for clean sliders */
